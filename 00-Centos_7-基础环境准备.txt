@@ -1,0 +1,28 @@
+#安装相应的工具
+yum install wget vim tree ntpdate lrzsz net-tools bind-utils -y
+
+#获取阿里云镜像源
+wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+
+#关闭selinux
+sed -i 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+grep SELINUX=disabled /etc/selinux/config 
+setenforce 0
+getenforce
+
+#开机关闭防火墙：
+systemctl disable firewalld.service
+systemctl stop firewalld.service
+
+#修改ssh远程连接
+sed -i '13 iPort 22  \nPermitRootLogin yes\nPermitEmptyPasswords no\nUseDNS no\nGSSAPIAuthentication no' /etc/ssh/sshd_config
+systemctl restart sshd.service
+
+#6、时间同步
+echo '#time sync by liwenbo at 2016-06-06' >>/var/spool/cron/root
+echo '*/5 * * * * /usr/sbin/ntpdate time1.aliyun.com >/dev/null 2>&1' >>/var/spool/cron/root
+crontab -l
+
+#修改主机名
+hostnamectl set-hostname BJ-TZX-SAAS-QEMU-NODE-1
+hostnamectl status
